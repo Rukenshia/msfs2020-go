@@ -323,11 +323,28 @@
       toggle_follow();
       initMap();
     });
+
+    function alpineState() {
+      return {
+        showSettings: false,
+        showInstruments: true,
+        darkMode: true,
+        instruments: [
+          { name: 'altitude', title: 'Altitude', visible: true },
+          { name: 'heading', title: 'Heading', visible: true },
+          { name: 'airspeed', title: 'Airspeed', visible: true },
+          { name: 'vertical_speed', title: 'Vertical Speed', visible: true },
+          { name: 'flaps', title: 'Flaps', visible: true },
+          { name: 'trim', title: 'Trim', visible: true },
+          { name: 'rudder_trim', title: 'Rudder Trim', visible: true },
+        ]
+      };
+    }
   </script>
   <script src="/static/alpine.min.js" defer></script>
 </head>
 
-<body x-data="{ showSettings: false, showInstruments: true, darkMode: true }">
+<body x-data="alpineState()">
   <div id="map" class="z-0"></div>
   <div id="settings-toggle" class="fixed right-0 m-6 mt-20 z-10">
     <button @click="showSettings = !showSettings"
@@ -348,7 +365,8 @@
         :class="{ 'bg-gray-800': darkMode, 'text-gray-200': darkMode }">
         <div class="flex justify-between">
           <div>
-            <h1 class="text-xl font-medium text-gray-400">Settings</h1>
+            <h1 class="text-xl font-medium"
+              :class="{ 'text-gray-100': darkMode, 'text-gray-600': !darkMode }">Settings</h1>
           </div>
           <div>
             <button @click="showSettings = false"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -368,6 +386,13 @@
           </span>
         </label>
 
+        <template x-if="showInstruments" x-for="instrument in instruments" :key="instrument">
+        <label class="ml-4 mt-4 block">
+          <input x-model="instrument.visible" class="mr-2 leading-tight h-4 w-4" type="checkbox">
+          <span class="text-md" x-text="instrument.title"></span>
+        </label>
+        </template>
+
         <label class="mt-4 block font-medium">
           <input x-model="darkMode" class="mr-2 leading-tight h-4 w-4" type="checkbox">
           <span class="text-2xl">
@@ -384,34 +409,12 @@
       flex text-center font-medium gap-6 justify-around
       transition-colors duration-100 ease-in-out
     " :class="{ 'bg-gray-800': darkMode, 'text-gray-500': darkMode }">
-    <div>
-      <div>Air Speed</div>
-      <div id="airspeed_value" class="font-bold font-mono text-2xl" :class="{ 'text-gray-200': darkMode }">0</div>
-    </div>
-    <div>
-      <div>Altitude</div>
-      <div id="altitude_value" class="font-bold font-mono text-2xl" :class="{ 'text-gray-200': darkMode }">0</div>
-    </div>
-    <div>
-      <div>Heading</div>
-      <div id="heading_value" class="font-bold font-mono text-2xl" :class="{ 'text-gray-200': darkMode }">0</div>
-    </div>
-    <div>
-      <div>V.Speed</div>
-      <div id="vertical_speed_value" class="font-bold font-mono text-2xl" :class="{ 'text-gray-200': darkMode }">0</div>
-    </div>
-    <div>
-      <div>Flaps</div>
-      <div id="flaps_value" class="font-bold font-mono text-2xl" :class="{ 'text-gray-200': darkMode }">0</div>
-    </div>
-    <div>
-      <div>Trim</div>
-      <div id="trim_value" class="font-bold font-mono text-2xl" :class="{ 'text-gray-200': darkMode }">0</div>
-    </div>
-    <div>
-      <div>R.Trim</div>
-      <div id="rudder_trim_value" class="font-bold font-mono text-2xl" :class="{ 'text-gray-200': darkMode }">0</div>
-    </div>
+    <template x-for="instrument in instruments.filter(i => i.visible)" :key="instrument">
+      <div>
+        <div x-text="instrument.title"></div>
+        <div :id="instrument.name" class="font-bold font-mono text-2xl" :class="{ 'text-gray-200': darkMode }">0</div>
+      </div>
+    </template>
   </div>
   <div style="display:none;">
 
